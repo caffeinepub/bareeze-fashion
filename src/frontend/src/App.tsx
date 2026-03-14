@@ -1356,6 +1356,15 @@ function HelpCentre({ onBack }: { onBack: () => void }) {
           </div>
         </section>
 
+        {/* Desi Clothes Photo */}
+        <section className="mb-12" data-ocid="help.photo.section">
+          <img
+            src="/assets/uploads/IMG-20260314-WA0006-1.jpg"
+            alt="Desi clothes collection"
+            className="w-full rounded-2xl object-cover max-h-96"
+          />
+        </section>
+
         {/* FAQ */}
         <section data-ocid="help.faq.section">
           <h2 className="font-display text-xl font-semibold mb-6 pb-2 border-b border-border">
@@ -2373,7 +2382,7 @@ export default function App() {
           </h2>
           <div className="mt-8 flex justify-center">
             <img
-              src="/assets/generated/desi-clothes-hanging.dim_800x1000.jpg"
+              src="/assets/uploads/file_0000000069b871fa8a45ab19f9a83b9e-1-1.png"
               alt="Desi clothes hanging"
               className="w-full max-w-xs md:max-w-sm rounded-sm object-cover shadow-md"
               style={{ maxHeight: "380px", objectFit: "cover" }}
