@@ -28,6 +28,7 @@ import { Toaster } from "@/components/ui/sonner";
 import {
   AlertCircle,
   ArrowLeft,
+  Building2,
   CheckCircle,
   ChevronDown,
   ChevronUp,
@@ -46,7 +47,7 @@ import {
   Wallet,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SiInstagram, SiPinterest } from "react-icons/si";
 import { toast } from "sonner";
 import { useActor } from "./hooks/useActor";
@@ -57,11 +58,21 @@ const DELIVERY_CHARGE = 200;
 const FREE_DELIVERY_THRESHOLD = 5999;
 const CANCELLATION_WINDOW_MS = 4 * 60 * 60 * 1000; // 4 hours
 
-type View = "shop" | "checkout" | "orders" | "admin" | "help";
+type View = "shop" | "checkout" | "orders" | "admin" | "help" | "messages";
+type CustomerMessage = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+};
 
 type Category = "All" | "New Arrivals" | "Best Sellers" | "Sale";
 
-type PaymentMethod = "jazzcash" | "easypaisa" | "cod";
+type PaymentMethod = "jazzcash" | "easypaisa" | "mezzan" | "cod";
 
 type Product = {
   id: number;
@@ -102,57 +113,57 @@ const products: Product[] = [
     price: "RS:6000",
     originalPrice: null,
     category: "Best Sellers",
-    image: "/assets/uploads/IMG-20260314-WA0006-1.jpg",
+    image: "/assets/uploads/IMG-20260314-WA0006-3-1.jpg",
     description:
       "A beautifully crafted unstitched 3-piece lawn suit by Maria B. Includes embroidered lawn shirt, printed lawn dupatta, and dyed cambric trouser. Perfect for festive occasions and formal gatherings.",
   },
   {
     id: 2,
-    name: "Silk White Blouse",
+    name: "Embroidered Pink Lawn Suit",
     price: "RS:9500",
     originalPrice: null,
     category: "New Arrivals",
-    image: "/assets/generated/product-blouse.dim_600x750.jpg",
+    image: "/assets/generated/product-suit-pink.dim_600x750.jpg",
     description:
       "Crafted from pure mulberry silk, this understated white blouse flows effortlessly from desk to dinner. Tailored with a relaxed silhouette, pearl buttons, and a gently draped collar.",
   },
   {
     id: 3,
-    name: "Tailored Trousers",
+    name: "Ivory 3 Piece Chiffon Suit",
     price: "RS:14500",
     originalPrice: null,
     category: "New Arrivals",
-    image: "/assets/generated/product-trousers.dim_600x750.jpg",
+    image: "/assets/uploads/IMG-20260314-WA0006-2-1.jpg",
     description:
       "Precision-cut tailored trousers in a refined crepe blend. A wide leg, high waist, and invisible side zip create a silhouette that is simultaneously classic and contemporary.",
   },
   {
     id: 4,
-    name: "Beige Midi Dress",
+    name: "Maroon Formal Anarkali Suit",
     price: "RS:22000",
     originalPrice: null,
     category: "Best Sellers",
-    image: "/assets/generated/product-dress.dim_600x750.jpg",
+    image: "/assets/generated/product-suit-maroon.dim_600x750.jpg",
     description:
       "Our best-loved midi silhouette returns in a warm sand-beige. Woven from organic cotton voile, it falls gracefully at mid-calf with a subtle A-line flare and adjustable tie waist.",
   },
   {
     id: 5,
-    name: "Cashmere Sweater",
+    name: "Floral Yellow Lawn 2 Piece",
     price: "RS:16500",
     originalPrice: "RS:24000",
     category: "Sale",
-    image: "/assets/generated/product-sweater.dim_600x750.jpg",
+    image: "/assets/generated/product-suit-yellow.dim_600x750.jpg",
     description:
       "Spun from Grade-A Mongolian cashmere, this relaxed-fit sweater is irresistibly soft. A clean round neck, dropped shoulders, and ribbed cuffs keep the design timeless season after season.",
   },
   {
     id: 6,
-    name: "Leather Mini Skirt",
+    name: "Royal Blue Chiffon Suit",
     price: "RS:11000",
     originalPrice: "RS:15000",
     category: "Sale",
-    image: "/assets/generated/product-skirt.dim_600x750.jpg",
+    image: "/assets/generated/product-suit-blue.dim_600x750.jpg",
     description:
       "Crafted in supple full-grain leather, this A-line mini skirt balances edge with sophistication. A concealed back zip and subtle flare ensure a flattering, effortless fit.",
   },
@@ -302,7 +313,9 @@ function CheckoutPage({
     if (!form.address.trim()) newErrors.address = "Street address is required.";
     if (!form.city.trim()) newErrors.city = "City is required.";
     if (
-      (paymentMethod === "jazzcash" || paymentMethod === "easypaisa") &&
+      (paymentMethod === "jazzcash" ||
+        paymentMethod === "easypaisa" ||
+        paymentMethod === "mezzan") &&
       !transactionId.trim()
     ) {
       newErrors.transactionId =
@@ -371,6 +384,16 @@ function CheckoutPage({
                   JazzCash Payment
                 </p>
                 <p className="font-sans text-xs text-green-700">
+                  Transaction ID: {transactionId}
+                </p>
+              </div>
+            )}
+            {paymentMethod === "mezzan" && (
+              <div className="bg-blue-50 border border-blue-200 rounded-sm px-4 py-3 mb-4 text-left">
+                <p className="font-sans text-xs text-blue-800 font-semibold mb-1">
+                  Meezan Bank Payment
+                </p>
+                <p className="font-sans text-xs text-blue-700">
                   Transaction ID: {transactionId}
                 </p>
               </div>
@@ -638,6 +661,15 @@ function CheckoutPage({
                   color="bg-teal-100"
                 />
                 <PaymentMethodCard
+                  method="mezzan"
+                  selected={paymentMethod === "mezzan"}
+                  onSelect={() => setPaymentMethod("mezzan")}
+                  icon={<Building2 size={18} className="text-blue-700" />}
+                  title="Meezan Bank"
+                  subtitle="Account: 02820108082003 (Syed Muhammad Ali Shah)"
+                  color="bg-blue-100"
+                />
+                <PaymentMethodCard
                   method="cod"
                   selected={paymentMethod === "cod"}
                   onSelect={() => setPaymentMethod("cod")}
@@ -699,6 +731,16 @@ function CheckoutPage({
               )}
 
               {/* EasyPaisa instructions */}
+              {paymentMethod === "mezzan" && (
+                <div className="bg-blue-50 border border-blue-200 rounded-sm px-4 py-3 mb-4 text-left">
+                  <p className="font-sans text-xs text-blue-800 font-semibold mb-1">
+                    Meezan Bank Payment
+                  </p>
+                  <p className="font-sans text-xs text-blue-700">
+                    Transaction ID: {transactionId}
+                  </p>
+                </div>
+              )}
               {paymentMethod === "easypaisa" && (
                 <div className="bg-teal-50 border border-teal-200 p-4 space-y-3">
                   <div className="flex items-start gap-2">
@@ -735,6 +777,56 @@ function CheckoutPage({
                       value={transactionId}
                       onChange={(e) => setTransactionId(e.target.value)}
                       className="rounded-none border-teal-300 bg-white focus-visible:ring-teal-500 font-sans text-sm h-11"
+                    />
+                    {errors.transactionId && (
+                      <p
+                        data-ocid="checkout.transaction_error"
+                        className="text-xs font-sans text-destructive"
+                      >
+                        {errors.transactionId}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Meezan Bank instructions */}
+              {paymentMethod === "mezzan" && (
+                <div className="bg-blue-50 border border-blue-200 p-4 space-y-3">
+                  <div className="flex items-start gap-2">
+                    <Building2
+                      size={16}
+                      className="text-blue-700 shrink-0 mt-0.5"
+                    />
+                    <div>
+                      <p className="font-sans text-sm font-semibold text-blue-800">
+                        Meezan Bank Payment Instructions
+                      </p>
+                      <p className="font-sans text-xs text-blue-700 mt-1">
+                        Transfer to account: <strong>02820108082003</strong>{" "}
+                        (Account Name: Syed Muhammad Ali Shah)
+                      </p>
+                      <p className="font-sans text-xs text-blue-700">
+                        After transferring, enter your Transaction ID below.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label
+                      htmlFor="transactionId"
+                      className="text-xs tracking-widest-xl uppercase font-sans text-blue-800"
+                    >
+                      Meezan Bank Transaction ID{" "}
+                      <span className="text-red-600">*</span>
+                    </Label>
+                    <Input
+                      id="transactionId"
+                      data-ocid="checkout.transaction_input"
+                      type="text"
+                      placeholder="e.g. MBL123456789"
+                      value={transactionId}
+                      onChange={(e) => setTransactionId(e.target.value)}
+                      className="rounded-none border-blue-300 bg-white focus-visible:ring-blue-500 font-sans text-sm h-11"
                     />
                     {errors.transactionId && (
                       <p
@@ -1129,7 +1221,9 @@ function OrdersPage({
                           ? "Cash on Delivery"
                           : order.paymentMethod === "jazzcash"
                             ? "JazzCash"
-                            : "EasyPaisa"}
+                            : order.paymentMethod === "mezzan"
+                              ? "Meezan Bank"
+                              : "EasyPaisa"}
                       </p>
                       {order.transactionId && (
                         <p className="font-sans text-xs text-muted-foreground">
@@ -1205,8 +1299,333 @@ function OrdersPage({
   );
 }
 
+// ── Message Centre ───────────────────────────────────────────────────────────
+function MessageCentre({ onBack }: { onBack: () => void }) {
+  const [form, setForm] = React.useState({
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+  });
+  const [submitted, setSubmitted] = React.useState(false);
+  const [errors, setErrors] = React.useState<Record<string, string>>({});
+
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (!form.name.trim()) errs.name = "Name is required";
+    if (!form.email.trim()) errs.email = "Email is required";
+    else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email))
+      errs.email = "Invalid email";
+    if (!form.subject.trim()) errs.subject = "Subject is required";
+    if (!form.message.trim()) errs.message = "Message is required";
+    return errs;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const errs = validate();
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
+    const saved: CustomerMessage[] = JSON.parse(
+      localStorage.getItem("bf_messages") || "[]",
+    );
+    const newMsg: CustomerMessage = {
+      id: Date.now().toString(),
+      ...form,
+      timestamp: new Date().toISOString(),
+      read: false,
+    };
+    localStorage.setItem("bf_messages", JSON.stringify([newMsg, ...saved]));
+    setSubmitted(true);
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="border-b border-border sticky top-0 bg-background/95 backdrop-blur-sm z-10">
+        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center gap-4">
+          <button
+            type="button"
+            data-ocid="messages.back.button"
+            onClick={onBack}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <svg
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 12H5" />
+              <path d="m12 19-7-7 7-7" />
+            </svg>
+            Back to Shop
+          </button>
+          <span className="text-border">|</span>
+          <span className="font-display text-sm font-semibold tracking-widest uppercase">
+            Bareeze Fashion
+          </span>
+        </div>
+      </header>
+
+      <main className="max-w-2xl mx-auto px-6 py-12">
+        <div className="mb-10">
+          <h1 className="font-display text-4xl font-bold tracking-tight mb-3">
+            Message Us
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            Have a question or need help? Send us a message and we'll get back
+            to you soon.
+          </p>
+        </div>
+
+        {submitted ? (
+          <div
+            data-ocid="messages.success_state"
+            className="border border-border rounded-xl p-10 text-center"
+          >
+            <div className="w-14 h-14 rounded-full bg-foreground/5 flex items-center justify-center mx-auto mb-4">
+              <svg
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <path d="m9 11 3 3L22 4" />
+              </svg>
+            </div>
+            <h2 className="font-display text-2xl font-bold mb-2">
+              Message Sent!
+            </h2>
+            <p className="text-muted-foreground text-sm mb-6">
+              Thank you for reaching out. We'll respond to{" "}
+              <strong>{form.email}</strong> as soon as possible.
+            </p>
+            <button
+              type="button"
+              data-ocid="messages.back_shop.button"
+              onClick={onBack}
+              className="inline-flex items-center gap-2 text-sm border border-border px-6 py-3 hover:bg-muted/40 transition-colors font-sans tracking-editorial uppercase"
+            >
+              Back to Shop
+            </button>
+          </div>
+        ) : (
+          <form
+            onSubmit={handleSubmit}
+            data-ocid="messages.form"
+            className="space-y-5"
+          >
+            <div className="grid sm:grid-cols-2 gap-5">
+              <div>
+                <label
+                  htmlFor="msg-name"
+                  className="text-xs font-sans uppercase tracking-widest text-muted-foreground block mb-2"
+                >
+                  Full Name *
+                </label>
+                <input
+                  id="msg-name"
+                  data-ocid="messages.name.input"
+                  type="text"
+                  value={form.name}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, name: e.target.value }))
+                  }
+                  placeholder="Your name"
+                  className={`w-full border px-4 py-3 text-sm font-sans bg-background outline-none focus:border-foreground transition-colors ${errors.name ? "border-red-400" : "border-border"}`}
+                />
+                {errors.name && (
+                  <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+                )}
+              </div>
+              <div>
+                <label
+                  htmlFor="msg-email"
+                  className="text-xs font-sans uppercase tracking-widest text-muted-foreground block mb-2"
+                >
+                  Email *
+                </label>
+                <input
+                  id="msg-email"
+                  data-ocid="messages.email.input"
+                  type="email"
+                  value={form.email}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, email: e.target.value }))
+                  }
+                  placeholder="your@email.com"
+                  className={`w-full border px-4 py-3 text-sm font-sans bg-background outline-none focus:border-foreground transition-colors ${errors.email ? "border-red-400" : "border-border"}`}
+                />
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                )}
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-5">
+              <div>
+                <label
+                  htmlFor="msg-phone"
+                  className="text-xs font-sans uppercase tracking-widest text-muted-foreground block mb-2"
+                >
+                  Phone (Optional)
+                </label>
+                <input
+                  id="msg-phone"
+                  data-ocid="messages.phone.input"
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, phone: e.target.value }))
+                  }
+                  placeholder="03xx-xxxxxxx"
+                  className="w-full border border-border px-4 py-3 text-sm font-sans bg-background outline-none focus:border-foreground transition-colors"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="msg-subject"
+                  className="text-xs font-sans uppercase tracking-widest text-muted-foreground block mb-2"
+                >
+                  Subject *
+                </label>
+                <input
+                  id="msg-subject"
+                  data-ocid="messages.subject.input"
+                  type="text"
+                  value={form.subject}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, subject: e.target.value }))
+                  }
+                  placeholder="Order issue, product question…"
+                  className={`w-full border px-4 py-3 text-sm font-sans bg-background outline-none focus:border-foreground transition-colors ${errors.subject ? "border-red-400" : "border-border"}`}
+                />
+                {errors.subject && (
+                  <p className="text-red-500 text-xs mt-1">{errors.subject}</p>
+                )}
+              </div>
+            </div>
+            <div>
+              <label
+                htmlFor="msg-message"
+                className="text-xs font-sans uppercase tracking-widest text-muted-foreground block mb-2"
+              >
+                Message *
+              </label>
+              <textarea
+                id="msg-message"
+                data-ocid="messages.message.textarea"
+                value={form.message}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, message: e.target.value }))
+                }
+                placeholder="Write your message here…"
+                rows={6}
+                className={`w-full border px-4 py-3 text-sm font-sans bg-background outline-none focus:border-foreground transition-colors resize-none ${errors.message ? "border-red-400" : "border-border"}`}
+              />
+              {errors.message && (
+                <p className="text-red-500 text-xs mt-1">{errors.message}</p>
+              )}
+            </div>
+            <button
+              type="submit"
+              data-ocid="messages.submit.button"
+              className="w-full bg-foreground text-background py-4 text-sm font-sans tracking-editorial uppercase hover:bg-foreground/80 transition-colors"
+            >
+              Send Message
+            </button>
+            <p className="text-xs text-muted-foreground text-center">
+              We typically reply within 24 hours
+            </p>
+          </form>
+        )}
+
+        <div className="mt-12 grid sm:grid-cols-2 gap-4">
+          <a
+            href="mailto:bareezefashion22@gmail.com"
+            data-ocid="messages.email.link"
+            className="flex items-center gap-3 p-4 border border-border hover:bg-muted/40 transition-colors"
+          >
+            <svg
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect width="20" height="16" x="2" y="4" rx="2" />
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+            </svg>
+            <div>
+              <p className="text-xs font-sans uppercase tracking-widest text-muted-foreground">
+                Email
+              </p>
+              <p className="text-sm">bareezefashion22@gmail.com</p>
+            </div>
+          </a>
+          <a
+            href="https://wa.me/923224402086"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-ocid="messages.whatsapp.link"
+            className="flex items-center gap-3 p-4 border border-border hover:bg-muted/40 transition-colors"
+          >
+            <svg
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z" />
+            </svg>
+            <div>
+              <p className="text-xs font-sans uppercase tracking-widest text-muted-foreground">
+                WhatsApp
+              </p>
+              <p className="text-sm">03224402086</p>
+            </div>
+          </a>
+        </div>
+      </main>
+
+      <footer className="border-t border-border mt-16 py-8">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <p className="font-sans text-xs text-muted-foreground tracking-widest uppercase">
+            © {new Date().getFullYear()} Bareeze Fashion
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
 // ── Help Centre ─────────────────────────────────────────────────────────────
-function HelpCentre({ onBack }: { onBack: () => void }) {
+function HelpCentre({
+  onBack,
+  onMessages,
+}: { onBack: () => void; onMessages: () => void }) {
   const faqs = [
     {
       q: "How do I place an order?",
@@ -1214,7 +1633,7 @@ function HelpCentre({ onBack }: { onBack: () => void }) {
     },
     {
       q: "What payment methods do you accept?",
-      a: "We accept JazzCash (0320-1435872), EasyPaisa (0320-1435872), and Cash on Delivery. For JazzCash and EasyPaisa payments, please enter your transaction ID at checkout. Account name: Syed Muhammad Ali Shah.",
+      a: "We accept JazzCash (0320-1435872), EasyPaisa (0320-1435872), Meezan Bank (02820108082003), and Cash on Delivery. For digital payments, please enter your transaction ID at checkout. Account name: Syed Muhammad Ali Shah.",
     },
     {
       q: "How long does delivery take?",
@@ -1354,13 +1773,39 @@ function HelpCentre({ onBack }: { onBack: () => void }) {
               </div>
             </a>
           </div>
+          <div className="mt-4">
+            <button
+              type="button"
+              data-ocid="help.message_us.button"
+              onClick={onMessages}
+              className="w-full flex items-center justify-center gap-3 p-5 rounded-xl border border-foreground bg-foreground text-background hover:bg-foreground/80 transition-colors"
+            >
+              <svg
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              <span className="font-sans text-sm tracking-editorial uppercase font-medium">
+                Send Us a Message
+              </span>
+            </button>
+          </div>
         </section>
 
         {/* Desi Clothes Photo */}
         <section className="mb-12" data-ocid="help.photo.section">
           <img
-            src="/assets/uploads/IMG-20260314-WA0006-1.jpg"
-            alt="Desi clothes collection"
+            src="/assets/generated/helpcentre-desi-clothes.dim_900x500.jpg"
+            alt="Bareeze Fashion desi clothes collection"
             className="w-full rounded-2xl object-cover max-h-96"
           />
         </section>
@@ -1670,7 +2115,7 @@ function AdminPanel({ onBack }: { onBack: () => void }) {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-4 gap-4">
               <div className="border border-border p-5">
                 <p className="font-sans text-xs tracking-widest-xl uppercase text-muted-foreground mb-1">
                   Total Orders
@@ -1693,6 +2138,18 @@ function AdminPanel({ onBack }: { onBack: () => void }) {
                 </p>
                 <p className="font-display text-3xl font-bold">
                   {pendingCount}
+                </p>
+              </div>
+              <div className="border border-border p-5">
+                <p className="font-sans text-xs tracking-widest-xl uppercase text-muted-foreground mb-1">
+                  Unread Messages
+                </p>
+                <p className="font-display text-3xl font-bold">
+                  {
+                    JSON.parse(
+                      localStorage.getItem("bf_messages") || "[]",
+                    ).filter((m: CustomerMessage) => !m.read).length
+                  }
                 </p>
               </div>
             </div>
@@ -1898,6 +2355,9 @@ function AdminPanel({ onBack }: { onBack: () => void }) {
                 ))}
               </div>
             )}
+
+            {/* Customer Messages */}
+            <AdminMessages />
           </div>
         )}
       </main>
@@ -1909,6 +2369,192 @@ function AdminPanel({ onBack }: { onBack: () => void }) {
           </p>
         </div>
       </footer>
+    </div>
+  );
+}
+
+// ── Admin Messages ───────────────────────────────────────────────────────────
+function AdminMessages() {
+  const [messages, setMessages] = React.useState<CustomerMessage[]>(() =>
+    JSON.parse(localStorage.getItem("bf_messages") || "[]"),
+  );
+  const [expandedId, setExpandedId] = React.useState<string | null>(null);
+
+  const markRead = (id: string) => {
+    const updated = messages.map((m) =>
+      m.id === id ? { ...m, read: true } : m,
+    );
+    setMessages(updated);
+    localStorage.setItem("bf_messages", JSON.stringify(updated));
+  };
+
+  const deleteMsg = (id: string) => {
+    const updated = messages.filter((m) => m.id !== id);
+    setMessages(updated);
+    localStorage.setItem("bf_messages", JSON.stringify(updated));
+  };
+
+  const unreadCount = messages.filter((m) => !m.read).length;
+
+  return (
+    <div className="space-y-4" data-ocid="admin.messages.section">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs tracking-widest-xl uppercase text-muted-foreground mb-2">
+            Inbox
+          </p>
+          <h2 className="font-display text-3xl font-bold">
+            Customer Messages
+            {unreadCount > 0 && (
+              <span className="ml-3 inline-flex items-center justify-center w-8 h-8 rounded-full bg-foreground text-background font-sans text-sm font-bold">
+                {unreadCount}
+              </span>
+            )}
+          </h2>
+        </div>
+      </div>
+
+      {messages.length === 0 ? (
+        <div
+          data-ocid="admin.messages.empty_state"
+          className="text-center py-20 border border-border"
+        >
+          <svg
+            aria-hidden="true"
+            className="mx-auto text-border mb-4"
+            xmlns="http://www.w3.org/2000/svg"
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          <p className="font-sans text-muted-foreground">No messages yet.</p>
+        </div>
+      ) : (
+        <div data-ocid="admin.messages.list" className="space-y-3">
+          {messages.map((msg, idx) => (
+            <div
+              key={msg.id}
+              data-ocid={`admin.messages.item.${idx + 1}`}
+              className={`border bg-background ${!msg.read ? "border-foreground" : "border-border"}`}
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  setExpandedId(expandedId === msg.id ? null : msg.id);
+                  markRead(msg.id);
+                }}
+                className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-muted/30 transition-colors"
+              >
+                <div className="flex items-center gap-5">
+                  {!msg.read && (
+                    <span className="w-2 h-2 rounded-full bg-foreground flex-shrink-0" />
+                  )}
+                  <div>
+                    <span className="font-display text-base font-bold">
+                      {msg.name}
+                    </span>
+                    <span className="font-sans text-sm text-muted-foreground ml-3">
+                      {msg.email}
+                    </span>
+                    {msg.phone && (
+                      <span className="font-sans text-sm text-muted-foreground ml-3">
+                        {msg.phone}
+                      </span>
+                    )}
+                  </div>
+                  <span className="font-sans text-sm text-muted-foreground">
+                    {msg.subject}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="font-sans text-xs text-muted-foreground">
+                    {new Date(msg.timestamp).toLocaleDateString("en-PK", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                  <svg
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    {expandedId === msg.id ? (
+                      <path d="m18 15-6-6-6 6" />
+                    ) : (
+                      <path d="m6 9 6 6 6-6" />
+                    )}
+                  </svg>
+                </div>
+              </button>
+              {expandedId === msg.id && (
+                <div className="border-t border-border px-6 py-5 space-y-4">
+                  <div>
+                    <p className="text-xs font-sans uppercase tracking-widest text-muted-foreground mb-2">
+                      Subject
+                    </p>
+                    <p className="font-sans text-sm font-medium">
+                      {msg.subject}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-sans uppercase tracking-widest text-muted-foreground mb-2">
+                      Message
+                    </p>
+                    <p className="font-sans text-sm leading-relaxed whitespace-pre-wrap">
+                      {msg.message}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 pt-2">
+                    <a
+                      href={`mailto:${msg.email}?subject=Re: ${encodeURIComponent(msg.subject)}`}
+                      data-ocid={`admin.messages.reply.button.${idx + 1}`}
+                      className="inline-flex items-center gap-2 text-xs font-sans uppercase tracking-editorial border border-border px-4 py-2 hover:bg-muted/40 transition-colors"
+                    >
+                      Reply by Email
+                    </a>
+                    {msg.phone && (
+                      <a
+                        href={`https://wa.me/92${msg.phone.replace(/^0/, "").replace(/-/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        data-ocid={`admin.messages.whatsapp.button.${idx + 1}`}
+                        className="inline-flex items-center gap-2 text-xs font-sans uppercase tracking-editorial border border-border px-4 py-2 hover:bg-muted/40 transition-colors"
+                      >
+                        WhatsApp
+                      </a>
+                    )}
+                    <button
+                      type="button"
+                      data-ocid={`admin.messages.delete_button.${idx + 1}`}
+                      onClick={() => deleteMsg(msg.id)}
+                      className="inline-flex items-center gap-2 text-xs font-sans uppercase tracking-editorial border border-red-300 text-red-500 px-4 py-2 hover:bg-red-50 transition-colors ml-auto"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -2134,7 +2780,16 @@ export default function App() {
 
   // ── Render alternate views ──────────────────────────────────
   if (view === "help") {
-    return <HelpCentre onBack={() => setView("shop")} />;
+    return (
+      <HelpCentre
+        onBack={() => setView("shop")}
+        onMessages={() => setView("messages")}
+      />
+    );
+  }
+
+  if (view === "messages") {
+    return <MessageCentre onBack={() => setView("shop")} />;
   }
 
   if (view === "checkout") {
@@ -2238,7 +2893,7 @@ export default function App() {
               <button
                 type="button"
                 data-ocid="nav.contact.link"
-                onClick={() => scrollTo("newsletter")}
+                onClick={() => setView("help")}
                 className="text-sm font-sans tracking-editorial uppercase text-foreground hover:opacity-60 transition-opacity"
               >
                 Contact
@@ -2382,9 +3037,9 @@ export default function App() {
           </h2>
           <div className="mt-8 flex justify-center">
             <img
-              src="/assets/uploads/file_0000000069b871fa8a45ab19f9a83b9e-1-1.png"
-              alt="Desi clothes hanging"
-              className="w-full max-w-xs md:max-w-sm rounded-sm object-cover shadow-md"
+              src="/assets/generated/helpcentre-desi-clothes.dim_900x500.jpg"
+              alt="Bareeze Fashion desi clothes hanging"
+              className="w-full max-w-2xl rounded-sm object-cover shadow-md"
               style={{ maxHeight: "380px", objectFit: "cover" }}
             />
           </div>
@@ -2622,12 +3277,19 @@ export default function App() {
                 {[
                   { label: "Collections", id: "collections" },
                   { label: "About Us", id: "about" },
-                  { label: "Contact", id: "newsletter" },
+                  { label: "Contact", id: "help" },
+                  { label: "Message Us", id: "messages" },
                 ].map((item) => (
                   <li key={item.id}>
                     <button
                       type="button"
-                      onClick={() => scrollTo(item.id)}
+                      onClick={() =>
+                        item.id === "help"
+                          ? setView("help")
+                          : item.id === "messages"
+                            ? setView("messages")
+                            : scrollTo(item.id)
+                      }
                       className="font-sans text-sm text-background/60 hover:text-background transition-colors tracking-editorial uppercase"
                     >
                       {item.label}
@@ -2670,6 +3332,12 @@ export default function App() {
                   <p className="font-sans text-sm text-background/60">
                     EasyPaisa:{" "}
                     <span className="text-background">0320-1435872</span>
+                  </p>
+                </li>
+                <li>
+                  <p className="font-sans text-sm text-background/60">
+                    Meezan Bank:{" "}
+                    <span className="text-background">02820108082003</span>
                   </p>
                 </li>
                 <li>
