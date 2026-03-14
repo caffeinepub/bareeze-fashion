@@ -165,9 +165,9 @@ const products: Product[] = [
     price: "RS:2400",
     originalPrice: "RS:3500",
     category: "Eid Sale",
-    image: "/assets/uploads/file_000000005210720b91a0a51f9c316d7b-1.png",
+    image: "/assets/uploads/file_00000000cf60720887edc8f27d5ddc81-1.png",
     description:
-      "Printed Lawn shirt, Printed Lawn dupatta, Dyed cambric trouser.",
+      "Printed Lawn shirt, Printed Lawn dupatta and cambric trouser.",
   },
 ];
 
@@ -284,29 +284,13 @@ function CheckoutPage({
   >({});
   const [placed, setPlaced] = useState(false);
   const [orderId, setOrderId] = useState(0);
-  const [promoCode, setPromoCode] = useState("");
-  const [promoApplied, setPromoApplied] = useState(false);
-  const [promoError, setPromoError] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [transactionId, setTransactionId] = useState("");
 
   // Delivery & discount calculations
   const deliveryCharge =
     cartSubtotal > FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_CHARGE;
-  const discountAmount = promoApplied ? Math.round(cartSubtotal * 0.1) : 0;
-  const grandTotal = cartSubtotal - discountAmount + deliveryCharge;
-
-  const handleApplyPromo = () => {
-    const code = promoCode.trim().toUpperCase();
-    if (code === "BAREEZE10") {
-      setPromoApplied(true);
-      setPromoError("");
-      toast.success("Promo code applied! 10% discount.");
-    } else {
-      setPromoApplied(false);
-      setPromoError("Invalid promo code.");
-    }
-  };
+  const grandTotal = cartSubtotal + deliveryCharge;
 
   const validate = () => {
     const newErrors: Partial<
@@ -916,53 +900,6 @@ function CheckoutPage({
 
             <Separator className="bg-border" />
 
-            {/* Promo Code */}
-            <div className="space-y-2">
-              <p className="font-sans text-xs tracking-widest-xl uppercase text-muted-foreground flex items-center gap-1.5">
-                <Tag size={12} /> Promo Code
-              </p>
-              <div className="flex gap-2">
-                <Input
-                  data-ocid="checkout.promo_input"
-                  type="text"
-                  placeholder="Enter code"
-                  value={promoCode}
-                  onChange={(e) => {
-                    setPromoCode(e.target.value);
-                    setPromoApplied(false);
-                    setPromoError("");
-                  }}
-                  className="rounded-none border-border bg-background focus-visible:ring-foreground font-sans text-sm h-10 flex-1"
-                />
-                <Button
-                  type="button"
-                  data-ocid="checkout.promo_button"
-                  onClick={handleApplyPromo}
-                  className="rounded-none bg-foreground text-background hover:bg-foreground/80 font-sans uppercase text-xs px-4 h-10 shrink-0"
-                >
-                  Apply
-                </Button>
-              </div>
-              {promoApplied && (
-                <p className="text-xs font-sans text-green-600 font-medium">
-                  ✓ BAREEZE10 applied — 10% off!
-                </p>
-              )}
-              {promoError && (
-                <p
-                  data-ocid="checkout.promo_error"
-                  className="text-xs font-sans text-destructive"
-                >
-                  {promoError}
-                </p>
-              )}
-              <p className="text-xs font-sans text-muted-foreground">
-                Try: BAREEZE10 for 10% off
-              </p>
-            </div>
-
-            <Separator className="bg-border" />
-
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <p className="font-sans text-xs tracking-editorial uppercase text-muted-foreground">
@@ -972,16 +909,6 @@ function CheckoutPage({
                   {formatPrice(cartSubtotal)}
                 </p>
               </div>
-              {promoApplied && (
-                <div className="flex justify-between items-center">
-                  <p className="font-sans text-xs tracking-editorial uppercase text-green-600">
-                    Discount (10%)
-                  </p>
-                  <p className="font-sans text-sm font-medium text-green-600">
-                    -{formatPrice(discountAmount)}
-                  </p>
-                </div>
-              )}
               <div className="flex justify-between items-center">
                 <p className="font-sans text-xs tracking-editorial uppercase text-muted-foreground flex items-center gap-1">
                   <Truck size={12} /> Delivery
@@ -1650,10 +1577,7 @@ function HelpCentre({
       q: "Can I cancel my order?",
       a: "Yes — orders can be cancelled within 4 hours of placing them. Go to My Orders (the bag icon in the header), find your order, and click Cancel Order. After 4 hours the cancellation window closes.",
     },
-    {
-      q: "How do I use a promo code?",
-      a: "At checkout, enter BAREEZE10 in the promo code field for 10% off your entire order.",
-    },
+
     {
       q: "What is the delivery charge?",
       a: "Orders totalling RS:5,999 or below have a RS:200 delivery charge. Orders above RS:5,999 qualify for free delivery. Your cart shows progress toward free delivery.",
