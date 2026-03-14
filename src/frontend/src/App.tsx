@@ -354,8 +354,8 @@ function CheckoutPage({
       <div className="min-h-screen bg-background flex flex-col">
         <header className="sticky top-0 z-50 bg-background border-b border-border">
           <div className="max-w-7xl mx-auto px-6 py-5">
-            <span className="font-display text-2xl font-bold tracking-widest-xl uppercase">
-              Bareeze Fashion
+            <span className="font-display font-brand text-2xl font-bold tracking-widest-xl uppercase">
+              Ghaza Fashion
             </span>
           </div>
         </header>
@@ -448,8 +448,8 @@ function CheckoutPage({
     <div className="min-h-screen bg-background flex flex-col">
       <header className="sticky top-0 z-50 bg-background border-b border-border">
         <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-          <span className="font-display text-2xl font-bold tracking-widest-xl uppercase">
-            Bareeze Fashion
+          <span className="font-display font-brand text-2xl font-bold tracking-widest-xl uppercase">
+            Ghaza Fashion
           </span>
           <button
             type="button"
@@ -1035,7 +1035,7 @@ function CheckoutPage({
       <footer className="bg-background border-t border-border mt-auto">
         <div className="max-w-7xl mx-auto px-6 py-6 text-center">
           <p className="text-xs font-sans text-muted-foreground">
-            © {new Date().getFullYear()} Bareeze Fashion.{" "}
+            © {new Date().getFullYear()} Ghaza Fashion.{" "}
             <a
               href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(typeof window !== "undefined" ? window.location.hostname : "")}`}
               target="_blank"
@@ -1067,8 +1067,8 @@ function OrdersPage({
     <div className="min-h-screen bg-background flex flex-col">
       <header className="sticky top-0 z-50 bg-background border-b border-border">
         <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
-          <span className="font-display text-2xl font-bold tracking-widest-xl uppercase">
-            Bareeze Fashion
+          <span className="font-display font-brand text-2xl font-bold tracking-widest-xl uppercase">
+            Ghaza Fashion
           </span>
           <button
             type="button"
@@ -1290,7 +1290,7 @@ function OrdersPage({
       <footer className="bg-background border-t border-border mt-auto">
         <div className="max-w-7xl mx-auto px-6 py-6 text-center">
           <p className="text-xs font-sans text-muted-foreground">
-            © {new Date().getFullYear()} Bareeze Fashion.{" "}
+            © {new Date().getFullYear()} Ghaza Fashion.{" "}
             <a
               href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(typeof window !== "undefined" ? window.location.hostname : "")}`}
               target="_blank"
@@ -1378,7 +1378,7 @@ function MessageCentre({ onBack }: { onBack: () => void }) {
           </button>
           <span className="text-border">|</span>
           <span className="font-display text-sm font-semibold tracking-widest uppercase">
-            Bareeze Fashion
+            Ghaza Fashion
           </span>
         </div>
       </header>
@@ -1564,7 +1564,7 @@ function MessageCentre({ onBack }: { onBack: () => void }) {
 
         <div className="mt-12 grid sm:grid-cols-2 gap-4">
           <a
-            href="mailto:bareezefashion22@gmail.com"
+            href="mailto:ghazafashion2234@gmail.com"
             data-ocid="messages.email.link"
             className="flex items-center gap-3 p-4 border border-border hover:bg-muted/40 transition-colors"
           >
@@ -1587,7 +1587,7 @@ function MessageCentre({ onBack }: { onBack: () => void }) {
               <p className="text-xs font-sans uppercase tracking-widest text-muted-foreground">
                 Email
               </p>
-              <p className="text-sm">bareezefashion22@gmail.com</p>
+              <p className="text-sm">ghazafashion2234@gmail.com</p>
             </div>
           </a>
           <a
@@ -1620,7 +1620,7 @@ function MessageCentre({ onBack }: { onBack: () => void }) {
       <footer className="border-t border-border mt-16 py-8">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <p className="font-sans text-xs text-muted-foreground tracking-widest uppercase">
-            © {new Date().getFullYear()} Bareeze Fashion
+            © {new Date().getFullYear()} Ghaza Fashion
           </p>
         </div>
       </footer>
@@ -1660,7 +1660,7 @@ function HelpCentre({
     },
     {
       q: "What if I receive a wrong or damaged item?",
-      a: "Contact us right away via WhatsApp at 03224402086 or email bareezefashion22@gmail.com with a photo of the item and your order number. We will resolve the issue as quickly as possible.",
+      a: "Contact us right away via WhatsApp at 03224402086 or email ghazafashion2234@gmail.com with a photo of the item and your order number. We will resolve the issue as quickly as possible.",
     },
     {
       q: "How do I track my order?",
@@ -1698,7 +1698,7 @@ function HelpCentre({
           </button>
           <span className="text-border">|</span>
           <span className="font-display text-sm font-semibold tracking-widest uppercase">
-            Bareeze Fashion
+            Ghaza Fashion
           </span>
         </div>
       </header>
@@ -1721,7 +1721,7 @@ function HelpCentre({
           </h2>
           <div className="grid sm:grid-cols-2 gap-4">
             <a
-              href="mailto:bareezefashion22@gmail.com"
+              href="mailto:ghazafashion2234@gmail.com"
               data-ocid="help.email.link"
               className="flex items-start gap-4 p-5 rounded-xl border border-border hover:bg-muted/40 transition-colors group"
             >
@@ -1745,7 +1745,7 @@ function HelpCentre({
               <div>
                 <p className="font-medium text-sm mb-1">Email Us</p>
                 <p className="text-sm text-muted-foreground">
-                  bareezefashion22@gmail.com
+                  ghazafashion2234@gmail.com
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
                   We reply within 24 hours
@@ -1811,8 +1811,8 @@ function HelpCentre({
         {/* Desi Clothes Photo */}
         <section className="mb-12" data-ocid="help.photo.section">
           <img
-            src="/assets/generated/helpcentre-desi-clothes.dim_900x500.jpg"
-            alt="Bareeze Fashion desi clothes collection"
+            src="/assets/generated/helpcentre-ghaza-wall.dim_900x500.jpg"
+            alt="Ghaza Fashion desi clothes collection"
             className="w-full rounded-2xl object-cover max-h-96"
           />
         </section>
@@ -1846,7 +1846,7 @@ function HelpCentre({
       <footer className="border-t border-border mt-16 py-8">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Bareeze Fashion. All rights reserved.
+            © {new Date().getFullYear()} Ghaza Fashion. All rights reserved.
           </p>
         </div>
       </footer>
@@ -1975,7 +1975,7 @@ function AdminPanel({ onBack }: { onBack: () => void }) {
         <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <LayoutDashboard size={20} className="text-muted-foreground" />
-            <span className="font-display text-2xl font-bold tracking-widest-xl uppercase">
+            <span className="font-display font-brand text-2xl font-bold tracking-widest-xl uppercase">
               Admin Panel
             </span>
           </div>
@@ -2372,7 +2372,7 @@ function AdminPanel({ onBack }: { onBack: () => void }) {
       <footer className="bg-background border-t border-border mt-auto">
         <div className="max-w-7xl mx-auto px-6 py-6 text-center">
           <p className="text-xs font-sans text-muted-foreground">
-            © {new Date().getFullYear()} Bareeze Fashion — Admin
+            © {new Date().getFullYear()} Ghaza Fashion — Admin
           </p>
         </div>
       </footer>
@@ -2777,7 +2777,7 @@ export default function App() {
       toast.error("Please enter a valid email address.");
       return;
     }
-    toast.success("You're on the list! Welcome to Bareeze Fashion.");
+    toast.success("You're on the list! Welcome to Ghaza Fashion.");
     setEmail("");
   };
 
@@ -2842,8 +2842,8 @@ export default function App() {
       {/* ── Navigation ────────────────────────────────────── */}
       <header className="sticky top-0 z-50 bg-background border-b border-border">
         <nav className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between gap-4">
-          <span className="font-display text-2xl font-bold tracking-widest-xl uppercase shrink-0">
-            Bareeze Fashion
+          <span className="font-display font-brand text-2xl font-bold tracking-widest-xl uppercase shrink-0">
+            Ghaza Fashion
           </span>
 
           {/* Search bar (expands inline) */}
@@ -3026,7 +3026,7 @@ export default function App() {
           <div className="relative overflow-hidden min-h-[50vh] md:min-h-0">
             <img
               src="/assets/generated/hero-fashion.dim_1200x700.jpg"
-              alt="Bareeze Fashion Hero"
+              alt="Ghaza Fashion Hero"
               className="absolute inset-0 w-full h-full object-cover object-center"
             />
           </div>
@@ -3044,8 +3044,8 @@ export default function App() {
           </h2>
           <div className="mt-8 flex justify-center">
             <img
-              src="/assets/generated/helpcentre-desi-clothes.dim_900x500.jpg"
-              alt="Bareeze Fashion desi clothes hanging"
+              src="/assets/generated/helpcentre-ghaza-wall.dim_900x500.jpg"
+              alt="Ghaza Fashion desi clothes hanging"
               className="w-full max-w-2xl rounded-sm object-cover shadow-md"
               style={{ maxHeight: "380px", objectFit: "cover" }}
             />
@@ -3176,10 +3176,10 @@ export default function App() {
               Woman.
             </h2>
             <p className="font-sans text-base leading-relaxed text-muted-foreground mb-6">
-              Bareeze Fashion was born from a simple belief: every woman
-              deserves clothing that feels as powerful as she is. We source only
-              the finest natural fabrics — silk, cashmere, organic cotton — and
-              work with artisan workshops to craft pieces built to last.
+              Ghaza Fashion was born from a simple belief: every woman deserves
+              clothing that feels as powerful as she is. We source only the
+              finest natural fabrics — silk, cashmere, organic cotton — and work
+              with artisan workshops to craft pieces built to last.
             </p>
             <p className="font-sans text-base leading-relaxed text-muted-foreground mb-10">
               Our collections are designed to work together, season after season
@@ -3199,7 +3199,7 @@ export default function App() {
             <div className="aspect-[3/4] bg-border overflow-hidden">
               <img
                 src="/assets/generated/hero-fashion.dim_1200x700.jpg"
-                alt="About Bareeze Fashion"
+                alt="About Ghaza Fashion"
                 className="w-full h-full object-cover object-top"
               />
             </div>
@@ -3255,8 +3255,8 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="grid md:grid-cols-3 gap-12 mb-12">
             <div>
-              <p className="font-display text-2xl font-bold tracking-widest-xl uppercase mb-4">
-                Bareeze Fashion
+              <p className="font-display font-brand text-2xl font-bold tracking-widest-xl uppercase mb-4">
+                Ghaza Fashion
               </p>
               <p className="font-sans text-sm text-background/60 leading-relaxed max-w-xs">
                 Curated women&apos;s clothing rooted in craft, quality, and
@@ -3370,7 +3370,7 @@ export default function App() {
           <Separator className="bg-background/10 mb-8" />
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="font-sans text-xs text-background/40">
-              © {new Date().getFullYear()} Bareeze Fashion. All rights reserved.
+              © {new Date().getFullYear()} Ghaza Fashion. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
               <a
