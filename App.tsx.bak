@@ -2376,7 +2376,7 @@ export default function App() {
               src="/assets/generated/desi-clothes-hanging.dim_800x1000.jpg"
               alt="Desi clothes hanging"
               className="w-full max-w-xs md:max-w-sm rounded-sm object-cover shadow-md"
-              style={{ maxHeight: "380px", objectFit: "cover" }}
+              style={{ maxHeight: '380px', objectFit: 'cover' }}
             />
           </div>
         </div>
