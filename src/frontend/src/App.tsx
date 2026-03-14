@@ -165,7 +165,7 @@ const products: Product[] = [
     price: "RS:2400",
     originalPrice: "RS:3500",
     category: "Eid Sale",
-    image: "/assets/uploads/file_00000000cf60720887edc8f27d5ddc81-1.png",
+    image: "/assets/uploads/file_000000005210720b91a0a51f9c316d7b-1-1.png",
     description:
       "Printed Lawn shirt, Printed Lawn dupatta and cambric trouser.",
   },
