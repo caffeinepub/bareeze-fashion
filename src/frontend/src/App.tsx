@@ -70,11 +70,12 @@ type CustomerMessage = {
   read: boolean;
 };
 
-type Category = "All" | "New Arrivals" | "Best Sellers" | "Sale";
+type Category = "All" | "New Arrivals" | "Best Sellers" | "Eid Sale";
 
 type PaymentMethod = "jazzcash" | "easypaisa" | "mezzan" | "cod";
 
 type Product = {
+  soldOut?: boolean;
   id: number;
   name: string;
   price: string;
@@ -114,6 +115,7 @@ const products: Product[] = [
     originalPrice: null,
     category: "Best Sellers",
     image: "/assets/uploads/IMG-20260314-WA0006-3-1.jpg",
+    soldOut: true,
     description:
       "A beautifully crafted unstitched 3-piece lawn suit by Maria B. Includes embroidered lawn shirt, printed lawn dupatta, and dyed cambric trouser. Perfect for festive occasions and formal gatherings.",
   },
@@ -152,24 +154,29 @@ const products: Product[] = [
     name: "Floral Yellow Lawn 2 Piece",
     price: "RS:16500",
     originalPrice: "RS:24000",
-    category: "Sale",
+    category: "Eid Sale",
     image: "/assets/generated/product-suit-yellow.dim_600x750.jpg",
     description:
       "Spun from Grade-A Mongolian cashmere, this relaxed-fit sweater is irresistibly soft. A clean round neck, dropped shoulders, and ribbed cuffs keep the design timeless season after season.",
   },
   {
     id: 6,
-    name: "Royal Blue Chiffon Suit",
-    price: "RS:11000",
-    originalPrice: "RS:15000",
-    category: "Sale",
-    image: "/assets/generated/product-suit-blue.dim_600x750.jpg",
+    name: "Unstitch 3 Piece Lawn Printed Shirt",
+    price: "RS:2400",
+    originalPrice: "RS:3500",
+    category: "Eid Sale",
+    image: "/assets/uploads/file_000000005210720b91a0a51f9c316d7b-1.png",
     description:
-      "Crafted in supple full-grain leather, this A-line mini skirt balances edge with sophistication. A concealed back zip and subtle flare ensure a flattering, effortless fit.",
+      "Printed Lawn shirt, Printed Lawn dupatta, Dyed cambric trouser.",
   },
 ];
 
-const categories: Category[] = ["All", "New Arrivals", "Best Sellers", "Sale"];
+const categories: Category[] = [
+  "All",
+  "New Arrivals",
+  "Best Sellers",
+  "Eid Sale",
+];
 
 function parsePrice(price: string): number {
   return Number.parseInt(price.replace(/[^0-9]/g, ""), 10) || 0;
@@ -3095,12 +3102,17 @@ export default function App() {
                   </div>
                   {product.originalPrice && (
                     <Badge className="absolute top-3 left-3 bg-foreground text-background rounded-none text-xs tracking-editorial uppercase font-sans">
-                      Sale
+                      Eid Sale
                     </Badge>
                   )}
                   {product.category === "New Arrivals" && (
                     <Badge className="absolute top-3 left-3 bg-background text-foreground border border-foreground rounded-none text-xs tracking-editorial uppercase font-sans">
                       New
+                    </Badge>
+                  )}
+                  {product.soldOut && (
+                    <Badge className="absolute top-3 left-3 bg-red-600 text-white rounded-none text-xs tracking-editorial uppercase font-sans">
+                      Sold Out
                     </Badge>
                   )}
                   <button
@@ -3472,7 +3484,7 @@ export default function App() {
                 />
                 {selectedProduct.originalPrice && (
                   <Badge className="absolute top-4 left-4 bg-foreground text-background rounded-none text-xs tracking-editorial uppercase font-sans">
-                    Sale
+                    Eid Sale
                   </Badge>
                 )}
               </div>
@@ -3583,21 +3595,29 @@ export default function App() {
                 </div>
 
                 <div className="space-y-3 mt-6">
-                  <Button
-                    data-ocid="product.modal.submit_button"
-                    onClick={handleAddToCart}
-                    className="w-full rounded-none bg-foreground text-background hover:bg-foreground/80 font-sans tracking-editorial uppercase text-sm py-6"
-                  >
-                    Add to Cart
-                  </Button>
-                  <Button
-                    data-ocid="product.modal.confirm_button"
-                    onClick={handleBuyNow}
-                    variant="outline"
-                    className="w-full rounded-none border-foreground font-sans tracking-editorial uppercase text-sm py-6 hover:bg-foreground hover:text-background"
-                  >
-                    Buy Now
-                  </Button>
+                  {selectedProduct?.soldOut ? (
+                    <div className="w-full rounded-none bg-gray-200 text-gray-500 font-sans tracking-editorial uppercase text-sm py-4 text-center border border-gray-300">
+                      Sold Out
+                    </div>
+                  ) : (
+                    <>
+                      <Button
+                        data-ocid="product.modal.submit_button"
+                        onClick={handleAddToCart}
+                        className="w-full rounded-none bg-foreground text-background hover:bg-foreground/80 font-sans tracking-editorial uppercase text-sm py-6"
+                      >
+                        Add to Cart
+                      </Button>
+                      <Button
+                        data-ocid="product.modal.confirm_button"
+                        onClick={handleBuyNow}
+                        variant="outline"
+                        className="w-full rounded-none border-foreground font-sans tracking-editorial uppercase text-sm py-6 hover:bg-foreground hover:text-background"
+                      >
+                        Buy Now
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
