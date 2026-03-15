@@ -188,6 +188,59 @@ function formatPrice(n: number): string {
   return `RS:${n.toLocaleString("en-PK")}`;
 }
 
+// ── Backend conversion helpers ─────────────────────────────────────────────────
+function backendProductToFrontend(bp: {
+  id: bigint;
+  name: string;
+  price: bigint;
+  originalPrice?: bigint;
+  image: string;
+  category: string;
+  description: string;
+  soldOut: boolean;
+  saleBadge: string;
+}): Product {
+  return {
+    id: Number(bp.id),
+    name: bp.name,
+    price: formatPrice(Number(bp.price)),
+    originalPrice:
+      bp.originalPrice != null &&
+      bp.originalPrice !== undefined &&
+      Number(bp.originalPrice) > 0
+        ? formatPrice(Number(bp.originalPrice))
+        : null,
+    category: bp.category as Product["category"],
+    image: bp.image,
+    description: bp.description,
+    soldOut: bp.soldOut,
+  };
+}
+
+function frontendProductToBackend(p: Product): {
+  id: bigint;
+  name: string;
+  price: bigint;
+  originalPrice: bigint | null;
+  image: string;
+  category: string;
+  description: string;
+  soldOut: boolean;
+  saleBadge: string;
+} {
+  return {
+    id: BigInt(p.id),
+    name: p.name,
+    price: BigInt(parsePrice(p.price)),
+    originalPrice: p.originalPrice ? BigInt(parsePrice(p.originalPrice)) : null,
+    category: p.category,
+    image: p.image,
+    description: p.description,
+    soldOut: p.soldOut ?? false,
+    saleBadge: p.category === "Eid Sale" ? "Eid Sale" : "",
+  };
+}
+
 function formatDate(ms: number): string {
   return new Date(ms).toLocaleDateString("en-PK", {
     year: "numeric",
@@ -2297,7 +2350,7 @@ function AdminHub({
 }: {
   onBack: () => void;
   productsList: Product[];
-  onSaveProducts: (products: Product[]) => void;
+  onSaveProducts: (products: Product[]) => void | Promise<void>;
 }) {
   const [tab, setTab] = React.useState<"orders" | "products">("orders");
 
@@ -2391,7 +2444,7 @@ function ProductAdmin({
   onSaveProducts,
 }: {
   productsList: Product[];
-  onSaveProducts: (products: Product[]) => void;
+  onSaveProducts: (products: Product[]) => void | Promise<void>;
 }) {
   const [form, setForm] = React.useState({ ...EMPTY_FORM });
   const [editId, setEditId] = React.useState<number | null>(null);
@@ -2811,7 +2864,48 @@ function ProductAdmin({
 }
 
 // ── App ────────────────────────────────────────────────────────────────────────
+
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="text-center p-8">
+            <p className="font-sans text-lg mb-4">Something went wrong.</p>
+            <button
+              type="button"
+              className="underline font-sans text-sm"
+              onClick={() => window.location.reload()}
+            >
+              Tap to reload
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function App() {
+  return (
+    <ErrorBoundary>
+      <AppInner />
+    </ErrorBoundary>
+  );
+}
+
+function AppInner() {
   const [view, setView] = useState<View>("shop");
   const [activeCategory, setActiveCategory] = useState<Category>("All");
   const [email, setEmail] = useState("");
@@ -2832,23 +2926,59 @@ export default function App() {
   // Orders state
   const [orders, setOrders] = useState<Order[]>([]);
 
-  // Products state with localStorage persistence
-  const [productsList, setProductsList] = useState<Product[]>(() => {
-    try {
-      const stored = localStorage.getItem("gf_products");
-      if (stored) return JSON.parse(stored) as Product[];
-    } catch {}
-    return DEFAULT_PRODUCTS;
-  });
-
-  const saveProducts = (updated: Product[]) => {
-    setProductsList(updated);
-    localStorage.setItem("gf_products", JSON.stringify(updated));
-  };
-  const [nextOrderId, setNextOrderId] = useState(1001);
-
+  // Products state – synced with backend canister
+  const [productsList, setProductsList] = useState<Product[]>(DEFAULT_PRODUCTS);
   const { actor } = useActor();
-  useInternetIdentity();
+  const [nextOrderId, setNextOrderId] = useState(1001);
+  const [productsLoading, setProductsLoading] = useState(false);
+
+  const saveProducts = async (updated: Product[]) => {
+    setProductsList(updated);
+    if (!actor) return;
+    try {
+      await (actor as any).saveAllProducts(
+        updated.map(frontendProductToBackend),
+      );
+    } catch (err) {
+      console.error("Failed to save products to backend:", err);
+    }
+  };
+
+  // Load products from backend on mount
+  useEffect(() => {
+    if (!actor) return;
+    try {
+      setProductsLoading(true);
+      const anyActor = actor as any;
+      anyActor
+        .getProducts()
+        .then((bps: any[]) => {
+          try {
+            if (bps && bps.length > 0) {
+              setProductsList(bps.map(backendProductToFrontend));
+            } else {
+              // First time: seed backend with default products
+              anyActor
+                .saveAllProducts(DEFAULT_PRODUCTS.map(frontendProductToBackend))
+                .catch(() => {});
+              setProductsList(DEFAULT_PRODUCTS);
+            }
+          } catch {
+            setProductsList(DEFAULT_PRODUCTS);
+          }
+        })
+        .catch(() => {
+          setProductsList(DEFAULT_PRODUCTS);
+        })
+        .finally(() => {
+          setProductsLoading(false);
+        });
+    } catch {
+      setProductsList(DEFAULT_PRODUCTS);
+      setProductsLoading(false);
+    }
+  }, [actor]);
+
   const [showAdminPasswordModal, setShowAdminPasswordModal] = useState(false);
   const [adminPassword, setAdminPassword] = useState("");
   const [adminPasswordError, setAdminPasswordError] = useState("");
@@ -3335,7 +3465,22 @@ export default function App() {
           ))}
         </div>
 
-        {filteredProducts.length === 0 ? (
+        {productsLoading ? (
+          <div
+            data-ocid="product.loading_state"
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+          >
+            {(["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"] as const).map(
+              (k) => (
+                <div key={k} className="animate-pulse">
+                  <div className="aspect-[4/5] bg-secondary mb-4 rounded-sm" />
+                  <div className="h-4 bg-secondary rounded mb-2 w-3/4" />
+                  <div className="h-3 bg-secondary rounded w-1/2" />
+                </div>
+              ),
+            )}
+          </div>
+        ) : filteredProducts.length === 0 ? (
           <div data-ocid="product.empty_state" className="text-center py-20">
             <p className="font-sans text-muted-foreground">
               No products found for &ldquo;{searchTerm}&rdquo;

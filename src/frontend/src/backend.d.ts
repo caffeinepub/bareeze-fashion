@@ -34,6 +34,17 @@ export interface OrderItem {
     quantity: bigint;
     price: bigint;
 }
+export interface BackendProduct {
+    id: bigint;
+    name: string;
+    price: bigint;
+    originalPrice?: bigint;
+    image: string;
+    category: string;
+    description: string;
+    soldOut: boolean;
+    saleBadge: string;
+}
 export enum UserRole {
     admin = "admin",
     user = "user",
@@ -52,4 +63,8 @@ export interface backendInterface {
     placeOrder(customerName: string, phone: string, email: string, address: string, city: string, items: Array<OrderItem>, subtotal: bigint, deliveryCharge: bigint, total: bigint, paymentMethod: string, transactionId: string): Promise<bigint>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updateOrderStatus(orderId: bigint, newStatus: string): Promise<void>;
+    getProducts(): Promise<Array<BackendProduct>>;
+    saveProduct(id: bigint, name: string, price: bigint, originalPrice: bigint | null, image: string, category: string, description: string, soldOut: boolean, saleBadge: string): Promise<bigint>;
+    deleteProduct(productId: bigint): Promise<void>;
+    saveAllProducts(productList: Array<BackendProduct>): Promise<void>;
 }

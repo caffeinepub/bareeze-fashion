@@ -41,6 +41,18 @@ actor {
     name : Text;
   };
 
+  public type Product = {
+    id : Nat;
+    name : Text;
+    price : Nat;
+    originalPrice : ?Nat;
+    image : Text;
+    category : Text;
+    description : Text;
+    soldOut : Bool;
+    saleBadge : Text;
+  };
+
   // Access control state
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
@@ -51,6 +63,10 @@ actor {
 
   // User profiles storage
   let userProfiles = Map.empty<Principal, UserProfile>();
+
+  // Products storage
+  let products = Map.empty<Nat, Product>();
+  var nextProductId = 1;
 
   // User profile management functions
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
@@ -72,6 +88,71 @@ actor {
       Runtime.trap("Unauthorized: Only users can save profiles");
     };
     userProfiles.add(caller, profile);
+  };
+
+  // Product management functions
+  public query func getProducts() : async [Product] {
+    products.values().toArray();
+  };
+
+  public shared ({ caller }) func saveProduct(
+    id : Nat,
+    name : Text,
+    price : Nat,
+    originalPrice : ?Nat,
+    image : Text,
+    category : Text,
+    description : Text,
+    soldOut : Bool,
+    saleBadge : Text,
+  ) : async Nat {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Only admins can save products");
+    };
+    let productId = if (id == 0) {
+      let newId = nextProductId;
+      nextProductId += 1;
+      newId;
+    } else {
+      id;
+    };
+    let product : Product = {
+      id = productId;
+      name;
+      price;
+      originalPrice;
+      image;
+      category;
+      description;
+      soldOut;
+      saleBadge;
+    };
+    products.add(productId, product);
+    productId;
+  };
+
+  public shared ({ caller }) func deleteProduct(productId : Nat) : async () {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Only admins can delete products");
+    };
+    ignore products.remove(productId);
+  };
+
+  public shared ({ caller }) func saveAllProducts(productList : [Product]) : async () {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Only admins can save products");
+    };
+    // Clear existing products
+    for ((k, _) in products.entries()) {
+      ignore products.remove(k);
+    };
+    // Save all new products
+    var maxId = 0;
+    for (p in productList.vals()) {
+      products.add(p.id, p);
+      if (p.id > maxId) { maxId := p.id };
+    };
+    nextProductId := maxId + 1;
   };
 
   // Order management functions
