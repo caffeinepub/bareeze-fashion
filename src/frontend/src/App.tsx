@@ -2586,23 +2586,66 @@ function ProductAdmin({
                 />
               </div>
             </div>
-            <div className="space-y-1">
-              <label
-                htmlFor="pa-image"
-                className="text-xs font-sans tracking-editorial uppercase text-muted-foreground"
-              >
-                Image URL
-              </label>
+            <div className="space-y-2">
+              <span className="text-xs font-sans tracking-editorial uppercase text-muted-foreground">
+                Product Photo
+              </span>
+              <div className="flex items-center gap-3">
+                <label
+                  data-ocid="products.image.upload_button"
+                  className="cursor-pointer flex items-center gap-2 border border-border px-4 py-2 text-sm font-sans tracking-editorial uppercase hover:bg-muted transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <title>Gallery</title>
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <path d="m21 15-5-5L5 21" />
+                  </svg>
+                  Choose from Gallery
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        const result = ev.target?.result as string;
+                        setForm((f) => ({ ...f, image: result }));
+                      };
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                </label>
+                {form.image && (
+                  <img
+                    src={form.image}
+                    alt="preview"
+                    className="h-12 w-12 object-cover border border-border"
+                  />
+                )}
+              </div>
               <input
                 id="pa-image"
                 data-ocid="products.image.input"
                 type="text"
-                value={form.image}
+                value={form.image.startsWith("data:") ? "" : form.image}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, image: e.target.value }))
                 }
                 className="w-full border border-border bg-background px-3 py-2 text-sm font-sans outline-none focus:border-foreground transition-colors"
-                placeholder="/assets/uploads/your-image.jpg"
+                placeholder="Or paste image URL: /assets/uploads/your-image.jpg"
               />
             </div>
             <div className="space-y-1">
