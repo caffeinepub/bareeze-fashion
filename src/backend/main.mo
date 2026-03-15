@@ -95,7 +95,7 @@ actor {
     products.values().toArray();
   };
 
-  public shared ({ caller }) func saveProduct(
+  public shared func saveProduct(
     id : Nat,
     name : Text,
     price : Nat,
@@ -106,9 +106,6 @@ actor {
     soldOut : Bool,
     saleBadge : Text,
   ) : async Nat {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Only admins can save products");
-    };
     let productId = if (id == 0) {
       let newId = nextProductId;
       nextProductId += 1;
@@ -131,17 +128,11 @@ actor {
     productId;
   };
 
-  public shared ({ caller }) func deleteProduct(productId : Nat) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Only admins can delete products");
-    };
+  public shared func deleteProduct(productId : Nat) : async () {
     ignore products.remove(productId);
   };
 
-  public shared ({ caller }) func saveAllProducts(productList : [Product]) : async () {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Only admins can save products");
-    };
+  public shared func saveAllProducts(productList : [Product]) : async () {
     // Clear existing products
     for ((k, _) in products.entries()) {
       ignore products.remove(k);
